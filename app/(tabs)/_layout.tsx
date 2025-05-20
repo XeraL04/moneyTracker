@@ -1,45 +1,87 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Chrome as Home, Layers as Layers3, CirclePlus as PlusCircle } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: styles.tabBar,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: styles.tabBarLabel,
+        headerShown: true,
+        headerStyle: styles.header,
+        headerTitleStyle: styles.headerTitle,
+        headerShadowVisible: false,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Dashboard',
+          tabBarLabel: 'Home',
+          headerTitle: 'Expense Tracker',
+          tabBarIcon: ({ color, size }) => (
+            <View style={styles.iconContainer}>
+              <Home size={size} color={color} {...({} as any)} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="add-expense"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Add Expense',
+          headerTitle: 'Add Expense',
+          tabBarIcon: ({ color, size }) => (
+            <View style={styles.iconContainer}>
+              <PlusCircle size={size} color={color} {...({} as any)} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="categories"
+        options={{
+          title: 'Categories',
+          headerTitle: 'Categories',
+          tabBarIcon: ({ color, size }) => (
+            <View style={styles.iconContainer}>
+              <Layers3 size={size} color={color} {...({} as any)} />
+            </View>
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#EFEFEF',
+    paddingTop: 8,
+    paddingBottom: 8,
+    height: 80,
+  },
+  tabBarLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+  },
+  headerTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+    color: '#000000',
+  },
+});
