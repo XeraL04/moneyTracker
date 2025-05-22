@@ -1,9 +1,9 @@
-import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { HStack, Pressable } from '@gluestack-ui/themed';
+import React from 'react';
 
 interface ColorPickerProps {
-    selectedColor: string;
-    onSelectColor: (color: string) => void;
+  selectedColor: string;
+  onSelectColor: (color: string) => void;
 }
 
 // Predefined set of colors
@@ -22,36 +22,23 @@ const colors = [
 
 export function ColorPicker({ selectedColor, onSelectColor }: ColorPickerProps) {
   return (
-    <View style={styles.container}>
-      {colors.map((color) => (
-        <TouchableOpacity
-          key={color}
-          style={[
-            styles.colorOption,
-            { backgroundColor: color },
-            selectedColor === color && styles.selectedColor,
-          ]}
-          onPress={() => onSelectColor(color)}
-        />
-      ))}
-    </View>
+    <HStack flexWrap="wrap" mx={-2}>
+      {colors.map((color) => {
+        const isSelected = selectedColor === color;
+        return (
+          <Pressable
+            key={color}
+            onPress={() => onSelectColor(color)}
+            m="$2"
+            rounded="$full"
+            width={40}
+            height={40}
+            bgColor={color}
+            borderWidth={isSelected ? 3 : 0}
+            borderColor={isSelected ? '$black' : 'transparent'}
+          />
+        );
+      })}
+    </HStack>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -8,
-  },
-  colorOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    margin: 8,
-  },
-  selectedColor: {
-    borderWidth: 3,
-    borderColor: '#000000',
-  },
-});

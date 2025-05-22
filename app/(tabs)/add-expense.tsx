@@ -1,19 +1,20 @@
 import { useExpenses } from '@/context/ExpenseContext';
 import { Category } from '@/types';
+import {
+    Box,
+    Button,
+    HStack,
+    Input,
+    InputField,
+    Pressable,
+    ScrollView,
+    Text,
+    VStack
+} from '@gluestack-ui/themed';
 import { router } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function AddExpenseScreen() {
     const { categories, addExpense } = useExpenses();
@@ -114,213 +115,218 @@ export default function AddExpenseScreen() {
         const isSelected = category.id === selectedCategoryId;
 
         return (
-            <TouchableOpacity
+            <Pressable
                 key={category.id}
-                style={[
-                    styles.categoryItem,
-                    { borderColor: category.color },
-                    isSelected && { backgroundColor: `${category.color}20` }
-                ]}
                 onPress={() => selectCategory(category.id)}
+                borderWidth="$1"
+                borderColor={category.color}
+                bg={isSelected ? `${category.color}20` : 'transparent'}
+                borderRadius="$full"
+                px="$4"
+                py="$2.5"
+                m="$1"
+                minWidth="$20"
             >
-                <Text style={[styles.categoryName, { color: category.color }]}>
-                    {category.name}
-                </Text>
-                {isSelected && (
-                    <View style={[styles.checkIcon, { backgroundColor: category.color }]}>
-                        <Check size={12} color="#FFFFFF" {...({} as any)} />
-                    </View>
-                )}
-            </TouchableOpacity>
+                <HStack alignItems="center" justifyContent="center" space="xs">
+                    <Text
+                        fontFamily="$body"
+                        fontSize="$sm"
+                        fontWeight="$medium"
+                        color={category.color}
+                    >
+                        {category.name}
+                    </Text>
+                    {isSelected && (
+                        <Box
+                            bg={category.color}
+                            width="$4"
+                            height="$4"
+                            borderRadius="$sm"
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <Check size={12} color="#FFFFFF" />
+                        </Box>
+                    )}
+                </HStack>
+            </Pressable>
         );
     };
 
     return (
         <KeyboardAvoidingView
-            style={styles.keyboardAvoid}
+            style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={100}
         >
-            <ScrollView style={styles.container}>
-                <View style={styles.formContainer}>
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Amount</Text>
-                        <View style={styles.amountInputContainer}>
-                            <Text style={styles.currencySymbol}> DZD</Text>
-                            <TextInput
-                                style={styles.amountInput}
-                                value={amount}
-                                onChangeText={handleAmountChange}
-                                placeholder="0.00"
-                                keyboardType="decimal-pad"
-                                maxLength={10}
-                            />
-                        </View>
-                        {amountError ? <Text style={styles.errorText}>{amountError}</Text> : null}
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Description</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={description}
-                            onChangeText={handleDescriptionChange}
-                            placeholder="What did you spend on?"
-                            maxLength={100}
-                        />
-                        {descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Category</Text>
-                        <View style={styles.categoriesContainer}>
-                            {categories.length === 0 ? (
-                                <Text style={styles.noCategoriesText}>
-                                    No categories available. Please add a category first.
+            <ScrollView flex={1} bg="$coolGray50">
+                <Box p="$4">
+                    <VStack space="xl">
+                        {/* Amount Input */}
+                        <VStack space="sm">
+                            <Text
+                                fontFamily="$body"
+                                fontSize="$md"
+                                fontWeight="$medium"
+                                color="$black"
+                            >
+                                Amount
+                            </Text>
+                            <HStack
+                                bg="$white"
+                                borderRadius="$md"
+                                borderWidth="$1"
+                                borderColor="$coolGray300"
+                                px="$4"
+                                alignItems="center"
+                            >
+                                <Text
+                                    fontSize="$xl"
+                                    fontFamily="$body"
+                                    fontWeight="$medium"
+                                    color="$black"
+                                    mr="$2"
+                                >
+                                    DZD
                                 </Text>
-                            ) : (
-                                categories.map(renderCategoryItem)
-                            )}
-                        </View>
-                        {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
-                    </View>
+                                <Input flex={1} variant="rounded">
+                                    <InputField
+                                        value={amount}
+                                        onChangeText={handleAmountChange}
+                                        placeholder="0.00"
+                                        keyboardType="decimal-pad"
+                                        maxLength={10}
+                                        fontSize="$xl"
+                                        fontWeight="$medium"
+                                        py="$3"
+                                    />
+                                </Input>
+                            </HStack>
+                            {amountError ? (
+                                <Text
+                                    fontFamily="$body"
+                                    fontSize="$sm"
+                                    color="$red500"
+                                    mt="$1"
+                                >
+                                    {amountError}
+                                </Text>
+                            ) : null}
+                        </VStack>
 
-                    <TouchableOpacity
-                        style={styles.submitButton}
-                        onPress={handleSubmit}
-                        disabled={categories.length === 0}
-                    >
-                        <Text style={styles.submitButtonText}>Add Expense</Text>
-                    </TouchableOpacity>
+                        {/* Description Input */}
+                        <VStack space="sm">
+                            <Text
+                                fontFamily="$body"
+                                fontSize="$md"
+                                fontWeight="$medium"
+                                color="$black"
+                            >
+                                Description
+                            </Text>
+                            <Input
+                                variant="outline"
+                                size="md"
+                                isInvalid={!!descriptionError}
+                            >
+                                <InputField
+                                    value={description}
+                                    onChangeText={handleDescriptionChange}
+                                    placeholder="What did you spend on?"
+                                    maxLength={100}
+                                />
+                            </Input>
+                            {descriptionError ? (
+                                <Text
+                                    fontFamily="$body"
+                                    fontSize="$sm"
+                                    color="$red500"
+                                    mt="$1"
+                                >
+                                    {descriptionError}
+                                </Text>
+                            ) : null}
+                        </VStack>
 
-                    {categories.length === 0 && (
-                        <TouchableOpacity
-                            style={styles.createCategoryButton}
-                            onPress={() => router.navigate('/(tabs)/categories' as any)}
+                        {/* Category Selection */}
+                        <VStack space="sm">
+                            <Text
+                                fontFamily="$body"
+                                fontSize="$md"
+                                fontWeight="$medium"
+                                color="$black"
+                            >
+                                Category
+                            </Text>
+                            <Box>
+                                {categories.length === 0 ? (
+                                    <Text
+                                        fontFamily="$body"
+                                        fontSize="$sm"
+                                        color="$coolGray500"
+                                        mt="$2"
+                                    >
+                                        No categories available. Please add a category first.
+                                    </Text>
+                                ) : (
+                                    <HStack flexWrap="wrap" mx="$1">
+                                        {categories.map(renderCategoryItem)}
+                                    </HStack>
+                                )}
+                            </Box>
+                            {categoryError ? (
+                                <Text
+                                    fontFamily="$body"
+                                    fontSize="$sm"
+                                    color="$red500"
+                                    mt="$1"
+                                >
+                                    {categoryError}
+                                </Text>
+                            ) : null}
+                        </VStack>
+
+                        {/* Submit Button */}
+                        <Button
+                            size="lg"
+                            variant="solid"
+                            bg="$blue600"
+                            onPress={handleSubmit}
+                            isDisabled={categories.length === 0}
+                            mt="$4"
                         >
-                            <Text style={styles.createCategoryButtonText}>Create Category First</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
+                            <Text
+                                fontFamily="$heading"
+                                fontSize="$md"
+                                fontWeight="$semibold"
+                                color="$white"
+                            >
+                                Add Expense
+                            </Text>
+                        </Button>
+
+                        {/* Create Category Button */}
+                        {categories.length === 0 && (
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                borderColor="$blue600"
+                                onPress={() => router.navigate('/(tabs)/categories' as any)}
+                                mt="$4"
+                            >
+                                <Text
+                                    fontFamily="$heading"
+                                    fontSize="$md"
+                                    fontWeight="$semibold"
+                                    color="$blue600"
+                                >
+                                    Create Category First
+                                </Text>
+                            </Button>
+                        )}
+                    </VStack>
+                </Box>
             </ScrollView>
         </KeyboardAvoidingView>
     );
 }
-
-const styles = StyleSheet.create({
-    keyboardAvoid: {
-        flex: 1,
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#F2F2F7',
-    },
-    formContainer: {
-        padding: 16,
-    },
-    inputGroup: {
-        marginBottom: 24,
-    },
-    label: {
-        fontFamily: 'Inter-Medium',
-        fontSize: 16,
-        color: '#000000',
-        marginBottom: 8,
-    },
-    input: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 16,
-        fontFamily: 'Inter-Regular',
-        borderWidth: 1,
-        borderColor: '#E5E5EA',
-    },
-    amountInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#E5E5EA',
-        paddingHorizontal: 16,
-    },
-    currencySymbol: {
-        fontSize: 20,
-        fontFamily: 'Inter-Medium',
-        color: '#000000',
-        marginRight: 8,
-    },
-    amountInput: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 20,
-        fontFamily: 'Inter-Medium',
-    },
-    categoriesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginHorizontal: -4,
-    },
-    categoryItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20,
-        borderWidth: 1.5,
-        margin: 4,
-        minWidth: 80,
-    },
-    categoryName: {
-        fontFamily: 'Inter-Medium',
-        fontSize: 14,
-    },
-    checkIcon: {
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginLeft: 6,
-    },
-    noCategoriesText: {
-        fontFamily: 'Inter-Regular',
-        fontSize: 14,
-        color: '#8E8E93',
-        marginTop: 8,
-    },
-    submitButton: {
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        paddingVertical: 16,
-        alignItems: 'center',
-        marginTop: 16,
-    },
-    submitButtonText: {
-        fontFamily: 'Inter-SemiBold',
-        fontSize: 16,
-        color: '#FFFFFF',
-    },
-    createCategoryButton: {
-        borderRadius: 8,
-        paddingVertical: 16,
-        alignItems: 'center',
-        marginTop: 16,
-        borderWidth: 1,
-        borderColor: '#007AFF',
-    },
-    createCategoryButtonText: {
-        fontFamily: 'Inter-SemiBold',
-        fontSize: 16,
-        color: '#007AFF',
-    },
-    errorText: {
-        fontFamily: 'Inter-Regular',
-        fontSize: 14,
-        color: '#FF3B30',
-        marginTop: 4,
-    },
-});

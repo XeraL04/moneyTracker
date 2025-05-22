@@ -1,19 +1,42 @@
+import { Box } from '@gluestack-ui/themed';
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Layers as Layers3, CirclePlus as PlusCircle } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { House as Home, Layers as Layers3, CirclePlus as PlusCircle } from 'lucide-react-native';
 
 export default function TabLayout() {
+  // Using gluestack-ui design tokens
+  const activeColor = '#007AFF'; // or useToken('colors', 'blue600')
+  const inactiveColor = '#8E8E93'; // or useToken('colors', 'coolGray500')
+  const backgroundColor = '#FFFFFF'; // or useToken('colors', 'white')
+  const borderColor = '#EFEFEF'; // or useToken('colors', 'coolGray200')
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
-        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
+        tabBarStyle: {
+          backgroundColor: backgroundColor,
+          borderTopWidth: 1,
+          borderTopColor: borderColor,
+          paddingTop: 8,
+          paddingBottom: 8,
+          height: 80,
+        },
         tabBarShowLabel: true,
-        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarLabelStyle: {
+          fontFamily: 'Inter-Medium',
+          fontSize: 12,
+          marginBottom: 8,
+        },
         headerShown: true,
-        headerStyle: styles.header,
-        headerTitleStyle: styles.headerTitle,
+        headerStyle: {
+          backgroundColor: backgroundColor,
+        },
+        headerTitleStyle: {
+          fontFamily: 'Inter-SemiBold',
+          fontSize: 18,
+          color: '#000000',
+        },
         headerShadowVisible: false,
       }}
     >
@@ -24,9 +47,9 @@ export default function TabLayout() {
           tabBarLabel: 'Home',
           headerTitle: 'Expense Tracker',
           tabBarIcon: ({ color, size }) => (
-            <View style={styles.iconContainer}>
-              <Home size={size} color={color} {...({} as any)} />
-            </View>
+            <Box alignItems="center" justifyContent="center">
+              <Home size={size} color={color} />
+            </Box>
           ),
         }}
       />
@@ -36,9 +59,9 @@ export default function TabLayout() {
           title: 'Add Expense',
           headerTitle: 'Add Expense',
           tabBarIcon: ({ color, size }) => (
-            <View style={styles.iconContainer}>
-              <PlusCircle size={size} color={color} {...({} as any)} />
-            </View>
+            <Box alignItems="center" justifyContent="center">
+              <PlusCircle size={size} color={color} />
+            </Box>
           ),
         }}
       />
@@ -48,40 +71,12 @@ export default function TabLayout() {
           title: 'Categories',
           headerTitle: 'Categories',
           tabBarIcon: ({ color, size }) => (
-            <View style={styles.iconContainer}>
-              <Layers3 size={size} color={color} {...({} as any)} />
-            </View>
+            <Box alignItems="center" justifyContent="center">
+              <Layers3 size={size} color={color} />
+            </Box>
           ),
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#EFEFEF',
-    paddingTop: 8,
-    paddingBottom: 8,
-    height: 80,
-  },
-  tabBarLabel: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    backgroundColor: '#FFFFFF',
-  },
-  headerTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: '#000000',
-  },
-});

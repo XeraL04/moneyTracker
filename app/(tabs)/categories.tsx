@@ -1,18 +1,29 @@
 import { ColorPicker } from '@/components/ColorPicker';
 import { useExpenses } from '@/context/ExpenseContext';
 import { Category } from '@/types';
+import {
+  Box,
+  Button,
+  Center,
+  Fab,
+  FabIcon,
+  HStack,
+  Input,
+  InputField,
+  Modal,
+  ModalBackdrop,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  Pressable,
+  ScrollView,
+  Text,
+  VStack
+} from '@gluestack-ui/themed';
 import { Plus, Trash2, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import {
-    Alert,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import { Alert, FlatList } from 'react-native';
 
 export default function CategoriesScreen() {
   const { categories, addCategory, deleteCategory, categoryTotals } = useExpenses();
@@ -47,6 +58,7 @@ export default function CategoriesScreen() {
       setCategoryName('');
       setCategoryColor('#007AFF');
       setModalVisible(false);
+      setNameError('');
     } catch (error) {
       Alert.alert('Error', 'Failed to add category. Please try again.');
     }
@@ -85,247 +97,195 @@ export default function CategoriesScreen() {
     const total = categoryTotals[item.id] || 0;
     
     return (
-      <View style={[styles.categoryItem, { borderLeftColor: item.color, borderLeftWidth: 4 }]}>
-        <View style={styles.categoryInfo}>
-          <Text style={styles.categoryName}>{item.name}</Text>
-          <Text style={styles.categoryTotal}>{total.toFixed(2)} DZD</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeleteCategory(item)}
-        >
-          <Trash2 size={20} color="#FF3B30" />
-        </TouchableOpacity>
-      </View>
+      <Box
+        bg="$white"
+        mx="$4"
+        my="$1.5"
+        borderRadius="$lg"
+        p="$4"
+        borderLeftWidth="$1"
+        borderLeftColor={item.color}
+        shadowColor="$black"
+        shadowOffset={{ width: 0, height: 1 }}
+        shadowOpacity={0.1}
+        shadowRadius={2}
+        elevation={2}
+      >
+        <HStack justifyContent="space-between" alignItems="center">
+          <VStack flex={1}>
+            <Text
+              fontFamily="$heading"
+              fontSize="$md"
+              color="$black"
+              fontWeight="$semibold"
+            >
+              {item.name}
+            </Text>
+            <Text
+              fontFamily="$body"
+              fontSize="$sm"
+              color="$coolGray500"
+              mt="$1"
+            >
+              {total.toFixed(2)} DZD
+            </Text>
+          </VStack>
+          <Pressable
+            p="$2"
+            onPress={() => handleDeleteCategory(item)}
+          >
+            <Trash2 size={20} color="#FF3B30" />
+          </Pressable>
+        </HStack>
+      </Box>
     );
   };
 
+  const ListHeader = () => (
+    <Box px="$4" py="$3" bg="$coolGray50">
+      <Text
+        fontFamily="$body"
+        fontSize="$sm"
+        color="$coolGray500"
+        fontWeight="$medium"
+      >
+        {categories.length} {categories.length === 1 ? 'Category' : 'Categories'}
+      </Text>
+    </Box>
+  );
+
+  const ListEmpty = () => (
+    <Center flex={1} pt="$24" px="$6">
+      <Text
+        fontFamily="$body"
+        fontSize="$md"
+        color="$coolGray500"
+        fontWeight="$medium"
+        textAlign="center"
+      >
+        No categories yet. Create your first category!
+      </Text>
+    </Center>
+  );
+
   return (
-    <View style={styles.container}>
+    <Box flex={1} bg="$coolGray50">
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id}
         renderItem={renderCategoryItem}
-        ListHeaderComponent={() => (
-          <View style={styles.header}>
-            <Text style={styles.headerText}>
-              {categories.length} {categories.length === 1 ? 'Category' : 'Categories'}
-            </Text>
-          </View>
-        )}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No categories yet. Create your first category!</Text>
-          </View>
-        )}
-        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={ListEmpty}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
       />
       
-      <TouchableOpacity
-        style={styles.addButton}
+      <Fab
+        size="lg"
+        placement="bottom right"
+        bg="$blue600"
         onPress={() => setModalVisible(true)}
       >
-        <Plus size={24} color="#FFFFFF" />
-      </TouchableOpacity>
+        <FabIcon as={Plus} />
+      </Fab>
       
       {/* Add Category Modal */}
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        isOpen={modalVisible}
+        onClose={() => {
+          setModalVisible(false);
+          setCategoryName('');
+          setNameError('');
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Category</Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => {
-                  setModalVisible(false);
-                  setCategoryName('');
-                  setNameError('');
-                }}
-              >
-                <X size={24} color="#8E8E93" />
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Category Name</Text>
-              <TextInput
-                style={styles.input}
-                value={categoryName}
-                onChangeText={(text) => {
-                  setCategoryName(text);
-                  if (nameError) setNameError('');
-                }}
-                placeholder="Enter category name"
-                maxLength={20}
-              />
-              {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Category Color</Text>
-              <ColorPicker
-                selectedColor={categoryColor}
-                onSelectColor={setCategoryColor}
-              />
-            </View>
-            
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={handleAddCategory}
+        <ModalBackdrop />
+        <ModalContent maxHeight="80%">
+          <ModalHeader>
+            <Text
+              fontFamily="$heading"
+              fontSize="$lg"
+              fontWeight="$semibold"
             >
-              <Text style={styles.saveButtonText}>Save Category</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+              Add New Category
+            </Text>
+            <ModalCloseButton>
+              <X size={24} color="#8E8E93" />
+            </ModalCloseButton>
+          </ModalHeader>
+          <ModalBody>
+            <ScrollView>
+              <VStack space="lg">
+                <VStack space="sm">
+                  <Text
+                    fontFamily="$body"
+                    fontSize="$md"
+                    fontWeight="$medium"
+                    color="$black"
+                  >
+                    Category Name
+                  </Text>
+                  <Input
+                    variant="outline"
+                    size="md"
+                    isInvalid={!!nameError}
+                  >
+                    <InputField
+                      placeholder="Enter category name"
+                      value={categoryName}
+                      onChangeText={(text) => {
+                        setCategoryName(text);
+                        if (nameError) setNameError('');
+                      }}
+                      maxLength={20}
+                    />
+                  </Input>
+                  {nameError ? (
+                    <Text
+                      fontFamily="$body"
+                      fontSize="$sm"
+                      color="$red500"
+                      mt="$1"
+                    >
+                      {nameError}
+                    </Text>
+                  ) : null}
+                </VStack>
+                
+                <VStack space="sm">
+                  <Text
+                    fontFamily="$body"
+                    fontSize="$md"
+                    fontWeight="$medium"
+                    color="$black"
+                  >
+                    Category Color
+                  </Text>
+                  <ColorPicker
+                    selectedColor={categoryColor}
+                    onSelectColor={setCategoryColor}
+                  />
+                </VStack>
+                
+                <Button
+                  size="lg"
+                  variant="solid"
+                  bg="$blue600"
+                  onPress={handleAddCategory}
+                  mt="$4"
+                >
+                  <Text
+                    fontFamily="$heading"
+                    fontSize="$md"
+                    fontWeight="$semibold"
+                    color="$white"
+                  >
+                    Save Category
+                  </Text>
+                </Button>
+              </VStack>
+            </ScrollView>
+          </ModalBody>
+        </ModalContent>
       </Modal>
-    </View>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F2F2F7',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#F2F2F7',
-  },
-  headerText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  listContent: {
-    flexGrow: 1,
-    paddingBottom: 80,
-  },
-  categoryItem: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 10,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  categoryInfo: {
-    flex: 1,
-  },
-  categoryName: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: '#000000',
-    marginBottom: 4,
-  },
-  categoryTotal: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 100,
-    paddingHorizontal: 24,
-  },
-  emptyText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: '#8E8E93',
-    textAlign: 'center',
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    backgroundColor: '#007AFF',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 24,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: '#000000',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: '#000000',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  },
-  saveButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  saveButtonText: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  errorText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#FF3B30',
-    marginTop: 4,
-  },
-});

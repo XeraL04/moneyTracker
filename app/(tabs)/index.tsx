@@ -2,75 +2,100 @@ import { ExpenseCard } from '@/components/ExpenseCard';
 import { TotalCard } from '@/components/TotalCard';
 import { useExpenses } from "@/context/ExpenseContext";
 import { ExpenseWithCategory } from '@/types';
+import {
+  Box,
+  FlatList,
+  HStack,
+  Pressable,
+  RefreshControl,
+  Text
+} from '@gluestack-ui/themed';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import React, { useCallback, useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
-  const { isLoading, totalSpending, categoryTotals, categories, getExpensesWithCategories } = useExpenses();
+  const {
+    isLoading,
+    totalSpending,
+    categoryTotals,
+    categories,
+    getExpensesWithCategories,
+  } = useExpenses();
+
   const [refreshing, setRefreshing] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(true);
 
   const expenses = getExpensesWithCategories();
-  
-  // Sort expenses by date (newest first)
-  const sortedExpenses = [...expenses].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+
+  const sortedExpenses = [...expenses].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // We're already updating state with context, so just wait a bit
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <Box flex={1} justifyContent="center" alignItems="center">
+        <Text fontFamily="Inter-Medium" fontSize="$md" color="$coolGray500">
+          Loading...
+        </Text>
+      </Box>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <TotalCard 
-        totalAmount={totalSpending} 
+    <Box flex={1} bg="#F2F2F7">
+      <TotalCard
+        totalAmount={totalSpending}
         categoryTotals={categoryTotals}
         categories={categories}
       />
-      
-      <View style={styles.expensesHeaderContainer}>
-        <Text style={styles.sectionTitle}>Recent Expenses</Text>
-        <TouchableOpacity 
-          style={styles.toggleButton}
+
+      <HStack
+        justifyContent="space-between"
+        alignItems="center"
+        px="$4"
+        my="$4"
+      >
+        <Text fontFamily="Inter-SemiBold" fontSize="$lg" color="$black">
+          Recent Expenses
+        </Text>
+        <Pressable
+          flexDirection="row"
+          alignItems="center"
           onPress={() => setShowAllExpenses(!showAllExpenses)}
         >
-          <Text style={styles.toggleText}>
+          <Text fontFamily="Inter-Medium" fontSize="$sm" color="#007AFF" mr="$1">
             {showAllExpenses ? 'Show Less' : 'Show All'}
           </Text>
           {showAllExpenses ? (
-            <ChevronUp size={16} color="#007AFF" {...({} as any)} />
+            <ChevronUp size={16} color="#007AFF" />
           ) : (
-            <ChevronDown size={16} color="#007AFF" {...({} as any)} />
+            <ChevronDown size={16} color="#007AFF" />
           )}
-        </TouchableOpacity>
-      </View>
+        </Pressable>
+      </HStack>
 
       {sortedExpenses.length === 0 ? (
-        <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>No expenses yet. Add your first expense!</Text>
-        </View>
+        <Box flex={1} justifyContent="center" alignItems="center" px="$6">
+          <Text
+            fontFamily="Inter-Medium"
+            fontSize="$md"
+            color="$coolGray500"
+            textAlign="center"
+          >
+            No expenses yet. Add your first expense!
+          </Text>
+        </Box>
       ) : (
         <FlatList
-          data={showAllExpenses ? sortedExpenses : sortedExpenses.slice(0, 5)}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }: { item: ExpenseWithCategory }) => (
-            <ExpenseCard expense={item} />
-          )}
-          contentContainerStyle={styles.listContent}
+          data={(showAllExpenses ? sortedExpenses : sortedExpenses.slice(0, 5)) as ExpenseWithCategory[]}
+          keyExtractor={(item) => (item as ExpenseWithCategory).id}
+          renderItem={({ item }) => <ExpenseCard expense={item as ExpenseWithCategory} />}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -81,62 +106,6 @@ export default function HomeScreen() {
           }
         />
       )}
-    </View>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F2F2F7',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  sectionTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: '#000000',
-    marginLeft: 16,
-  },
-  expensesHeaderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingRight: 16,
-    marginVertical: 16,
-  },
-  toggleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  toggleText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: '#007AFF',
-    marginRight: 4,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  emptyStateText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: '#8E8E93',
-    textAlign: 'center',
-  },
-});
